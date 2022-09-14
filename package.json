@@ -2,7 +2,7 @@
   "name": "rr-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./server/index.js",
   "scripts": {
     "server-dev": "npx nodemon server/index.js"
   },
@@ -17,8 +17,12 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
+    "bluebird": "^3.7.2",
+    "dotenv": "^16.0.2",
     "express": "^4.15.0",
     "nodemon": "^2.0.19",
+    "pg": "^8.8.0",
+    "pgp": "^0.1.0",
     "postgres": "^3.2.4"
   },
   "homepage": "https://github.com/sdc-green-lantern/RatingsReviews-API#readme"
