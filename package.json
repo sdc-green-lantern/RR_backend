@@ -1,0 +1,25 @@
+{
+  "name": "rr-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server-dev": "npx nodemon server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdc-green-lantern/RatingsReviews-API.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sdc-green-lantern/RatingsReviews-API/issues"
+  },
+  "dependencies": {
+    "axios": "^0.21.0",
+    "express": "^4.15.0",
+    "nodemon": "^2.0.19",
+    "postgres": "^3.2.4"
+  },
+  "homepage": "https://github.com/sdc-green-lantern/RatingsReviews-API#readme"
+}
