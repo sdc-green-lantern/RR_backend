@@ -10,22 +10,35 @@
 --
 -- ---
 
+--id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
+
+--date looks like: 1610178433963
+
 DROP TABLE IF EXISTS reviews;
 
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
   product_id INTEGER NULL DEFAULT NULL,
-  review_id INTEGER NULL DEFAULT NULL,
-  created_at DATE NULL DEFAULT NULL,
-  reviewer_name VARCHAR NULL DEFAULT NULL,
-  summary VARCHAR(60) NULL DEFAULT NULL,
-  body TEXT NULL DEFAULT NULL,
   rating INTEGER,
-  helpfulness VARCHAR NULL DEFAULT NULL,
+  "date" BIGINT NULL DEFAULT NULL,
+  summary TEXT NULL DEFAULT NULL,
+  body TEXT NULL DEFAULT NULL,
   recommend BOOLEAN,
-  photos jsonb,
+  reported BOOLEAN,
+  reviewer_name VARCHAR NULL DEFAULT NULL,
+  reviewer_email VARCHAR NULL DEFAULT NULL,
   response TEXT NULL DEFAULT NULL,
-  reported BOOLEAN
+  helpfulness VARCHAR NULL DEFAULT NULL
+  -- review_id INTEGER NULL DEFAULT NULL,
+);
+
+--id, review_id, url
+DROP TABLE IF EXISTS review_photos;
+
+CREATE TABLE review_photos (
+  id SERIAL PRIMARY KEY,
+  review_id TEXT,
+  "url" TEXT
 );
 
 -- ---
@@ -33,15 +46,28 @@ CREATE TABLE reviews (
 --
 -- ---
 
-DROP TABLE IF EXISTS reviews_meta;
 
-CREATE TABLE reviews_meta (
+
+--id,characteristic_id,review_id,value
+-- DROP TABLE IF EXISTS reviews_meta;
+
+-- CREATE TABLE reviews_meta (
+--   id SERIAL PRIMARY KEY,
+--   product_id INTEGER NULL DEFAULT NULL,
+--   characteristics jsonb,
+--   ratings jsonb,
+--   recommended jsonb
+-- );
+
+DROP TABLE IF EXISTS characteristics;
+
+
+CREATE TABLE characteristics (
   id SERIAL PRIMARY KEY,
-  product_id INTEGER NULL DEFAULT NULL,
-  characteristics jsonb,
-  ratings jsonb,
-  recommended jsonb
-);
+  characteristic_id TEXT,
+  review_id TEXT,
+  value INTEGER
+)
 
 -- ---
 -- Foreign Keys
@@ -59,7 +85,10 @@ CREATE TABLE reviews_meta (
 -- Test Data
 -- ---
 
--- INSERT INTO `reviews` (`id`,`product_id`,`review_id`,`date`,`reviewer_name`,`summary`,`body`,`rating`,`helpfulness`,`recommend`,`photos`,`response`,`reported`) VALUES
--- ('','','','','','','','','','','','','');
--- INSERT INTO `reviews_meta` (`id`,`product_id`,`characteristics`,`ratings`,`recommended`) VALUES
+-- INSERT INTO reviews (id,product_id,review_id,created_at,reviewer_name,summary,body,rating,helpfulness,recommend,photos,response,reported) VALUES
+-- ('1','2','3','4','5','6','7','8','9','0','1','2','3');
+-- INSERT INTO reviews_meta (id,product_id,characteristics,ratings,recommended) VALUES
 -- ('','','','','');
+
+
+-- psql rrdb < server/schema.sql
