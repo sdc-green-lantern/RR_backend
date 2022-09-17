@@ -12,7 +12,7 @@ function convertDateTime(value) {
   // return date + " " + time;
   return timestamp;
 }
-console.log(convertDateTime(1596080481467));
+console.log(convertDateTime(1284352323));
 
 //this is just like the date originally turned by the api
 
