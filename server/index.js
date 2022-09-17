@@ -1,30 +1,9 @@
+require("dotenv").config();
 var express = require("express");
 var fs = require("fs");
 var { parse } = require("csv-parse");
-
-let date = new Date(1596080481467);
-console.log(date);
-
-function convertDateTime(value) {
-  const timestamp = new Date(value);
-  // let date = timestamp.toLocaleDateString("en-US");
-  // let time = timestamp.toLocaleTimeString("en-US");
-  // return date + " " + time;
-  return timestamp;
-}
-console.log(convertDateTime(1284352323));
-
-//this is just like the date originally turned by the api
-
-//to_timestamp(1596080481467)
-
-//select extract(epoch from date)
-
-// var parser = parse({ columns: true }, function (err, records) {
-//   console.log(records);
-// });
-
-let result = [];
+const path = require("path");
+var router = require("./routes.js");
 
 // fs.createReadStream(
 //   __dirname + "/../csv_files/characteristic_reviews.csv"
@@ -38,3 +17,11 @@ let result = [];
 //   .on("end", () => {
 //     console.log(result[0]);
 //   });
+
+const app = express();
+
+app.use(express.json());
+app.use("/reviews", router);
+
+app.listen(process.env.PORT || 3000);
+console.log(`Listening at http://localhost:${process.env.PORT}`);

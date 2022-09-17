@@ -1,6 +1,6 @@
 require("dotenv").config();
 // import postgres from "postgres";
-var pgp = requried("pg-promise");
+var pgp = require("pgp");
 
 // const connection = postgres(
 //   "postgres://username:password@host:port/database",
@@ -20,6 +20,6 @@ const credentials = {
   port: process.env.PORT || 3000,
 };
 
-const db = pgp(credentials); //database instance
+const connection = pgp(credentials); //database instance
 
-export default db;
+module.exports = connection;

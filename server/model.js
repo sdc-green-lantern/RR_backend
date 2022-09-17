@@ -1,6 +1,8 @@
-import db from "./db.js";
+// import db from "./db.js";
+const db = require("./db.js");
+//going to have queries for any operation
 
-// var utcSeconds = 1610178433963;
-// var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-// d.setUTCSeconds(utcSeconds);
-// console.log(d);
+module.exports.getAll = () => {
+  return console.log("hi");
+  // db.connection.execute()
+};
