@@ -24,16 +24,22 @@ const app = express();
 app.use(express.json());
 // app.use("/reviews", router);
 
+/////////////////////////////////////////////////////////////////
+
+app.get("/reviews/meta", (req, res) => {
+  console.log("request for metadata");
+  controller.getMeta(req, res);
+});
+
+//page, count, sort, product_id
 app.get("/reviews", (req, res) => {
   console.log("request for reviews");
-  controller.getAll(req, res);
-  // controller.getAll(req, (err, data) => {
-  //   if (err) {
-  //     console.log(err);
-  //   }
-  //   res.sendStatus(data);
-  // });
+  console.log(req.query.product_id);
+
+  controller.getReviewsById(req, res);
 });
+
+/////////////////////////////////////////////////////////////////
 
 app.listen(process.env.PORT || 3000);
 console.log(`Listening at http://localhost:${process.env.PORT}`);
