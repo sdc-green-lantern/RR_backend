@@ -43,3 +43,11 @@ app.get("/reviews", (req, res) => {
 
 app.listen(process.env.PORT || 3000);
 console.log(`Listening at http://localhost:${process.env.PORT}`);
+
+/// TO DO AND THOUGHTS //
+
+//having a connection error at the moment, which takes priority
+
+//reviews does not have a link to characteristics or review_photos, ill need to make one
+
+//potentially need to make connection pool rather than client

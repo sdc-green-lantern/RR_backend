@@ -13,10 +13,12 @@ module.exports.getReviewsById = (req, res) => {
 
 module.exports.getMeta = (req, res) => {
   console.log("request for meta received by controller");
-  model.getMetaById(req, (err, data) => {
-    if (err) {
-      console.log(err);
-    }
-    res.send(data);
-  });
+  let reqData = req.query.product_id;
+  model.getMetaById(reqData);
+  // model.getMetaById(reqData, (err, data) => {
+  //   if (err) {
+  //     console.log(err);
+  //   }
+  //   res.send(data);
+  // });
 };
