@@ -2,29 +2,22 @@
 const db = require("./db.js");
 //going to have queries for any operation
 
-module.exports.getAll = (data, callback) => {
+module.exports.getAllReviews = (data, res) => {
   console.log("model received request");
-  console.log("model", data);
-  callback(null, 200);
+  db.query(`SELECT * FROM reviews WHERE product_id = ${data}`)
+    .then((data) => res.send(data.rows))
+    .catch((err) => console.log(err));
 };
 
-module.exports.getMetaById = (data) => {
+module.exports.getMetaById = (data, res) => {
   console.log("model received meta request for: ", data);
-  // callback(null, 201);
   //data===product_id
-  db.query("SELECT rating FROM reviews WHERE product_id = 1000011;")
-    .then((res) => console.log(res))
+  db.query(`SELECT rating FROM reviews WHERE product_i = ${data}`)
+    .then((data) => res.send(data.rows))
     .catch((err) => console.log(err.stack));
 };
 
-//client.query().then().catch
-//valid query --> SELECT rating FROM reviews WHERE product_id = 1000011;
-
-//queries can be executed either via text/parameter values passed as individual arguments
-//or by passing an options object containing text, (optional) parameter values, and (optional) query name
-
-// client.query({
-//   name: "insert beatle",
-//   text: "INSERT INTO beatles(name, height, birthday) values($1, $2, $3)",
-//   values: ["George", 70, new Date(1946, 02, 14)],
-// });
+//getReviewsByCount   -> params: {product_id, sort, count}
+//postNewReview       -> body: entire post obj
+//markReviewHelpful   -> params: { review_id: id }
+//reportReview        -> params: { review_id: id }:

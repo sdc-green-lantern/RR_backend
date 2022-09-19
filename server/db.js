@@ -77,7 +77,7 @@ const pool = new Pool({
 
 pool
   .connect()
-  .then(() => console.log("connected"))
+  .then(() => console.log("db connected"))
   .catch((err) => console.log("connection error with db", err));
 
 module.exports = pool;

@@ -6,19 +6,6 @@ const path = require("path");
 var router = require("./routes.js");
 const controller = require("./controllers.js");
 
-// fs.createReadStream(
-//   __dirname + "/../csv_files/characteristic_reviews.csv"
-// ).pipe(parser);
-
-// fs.createReadStream(__dirname + "/../csv_files/characteristic_reviews.csv")
-//   .pipe(parse())
-//   .on("data", (data) => {
-//     result.push(data);
-//   })
-//   .on("end", () => {
-//     console.log(result[0]);
-//   });
-
 const app = express();
 
 app.use(express.json());
@@ -46,8 +33,9 @@ console.log(`Listening at http://localhost:${process.env.PORT}`);
 
 /// TO DO AND THOUGHTS //
 
-//having a connection error at the moment, which takes priority
-
 //reviews does not have a link to characteristics or review_photos, ill need to make one
+//~~actually only for photos, characteristics are sepperated into their own api call...
 
-//potentially need to make connection pool rather than client
+//set up link between an individual review and its photos
+
+//set up getReviewsById to transform response data in the controller (ideally, maybe model for ease) for things like count, sort, etc...
