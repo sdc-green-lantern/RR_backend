@@ -1,9 +1,9 @@
 const model = require("./model.js");
 
-module.exports.getAllReviewsById = (req, res) => {
+module.exports.getReviewsById = (req, res) => {
   console.log("request recieved by controller");
   let reqData = req.query.product_id;
-  model.getAll(reqData, res);
+  model.getAllReviews(reqData, res);
 };
 
 module.exports.getMeta = (req, res) => {

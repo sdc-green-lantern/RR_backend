@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS review_photos;
 DROP TABLE IF EXISTS characteristics;
 
 CREATE TABLE reviews_temp (
-  id SERIAL PRIMARY KEY,
+  review_id SERIAL PRIMARY KEY,
   product_id INTEGER NULL DEFAULT NULL,
   rating INTEGER,
   created_at BIGINT NULL DEFAULT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE reviews_temp (
 );
 
 CREATE TABLE reviews (
-  id SERIAL PRIMARY KEY,
+  review_id SERIAL PRIMARY KEY,
   product_id INTEGER NULL DEFAULT NULL,
   rating INTEGER,
   created_at DATE NULL DEFAULT NULL,
@@ -42,14 +42,14 @@ CREATE TABLE reviews (
 
 CREATE TABLE review_photos (
   id SERIAL PRIMARY KEY,
-  review_id TEXT,
+  review_id INTEGER,
   "url" TEXT
 );
 
 CREATE TABLE characteristics (
   id SERIAL PRIMARY KEY,
-  characteristic_id TEXT,
-  review_id TEXT,
+  characteristic_id INTEGER,
+  review_id INTEGER,
   val INTEGER
 );
 
@@ -68,7 +68,7 @@ COPY review_photos FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/re
 COPY characteristics FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
 
 INSERT INTO reviews SELECT
-id, product_id, rating,
+review_id, product_id, rating,
 to_timestamp(cast(created_at/1000 as bigint))::date,
 summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness
 FROM reviews_temp;
