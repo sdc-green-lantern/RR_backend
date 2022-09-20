@@ -7,18 +7,23 @@ module.exports.getAllReviews = (data, res) => {
   //   `SELECT (json_agg(review_photos)) FROM review_photos WHERE review_photos.review_id = 5;`
   // ).then((data) => res.send(data.rows[0].json_agg));
 
-  //prob with subquery where im linking to product id not review id
-  //or, if review id is right im not returning all reviews for that product
-  //i think my subquery needs a subquery...
-  //or maybe this entire query becomes a subquery...
+  // db.query(
+  //   `SELECT * FROM reviews,
+  //     (SELECT (json_agg(review_photos))
+  //     AS photos
+  //     FROM review_photos
+  //     WHERE review_photos.review_id = 5)
+  //   AS photos
+  //   WHERE reviews.product_id = 2;`
+  // )
+
   db.query(
-    `SELECT * FROM reviews,
-      (SELECT (json_agg(review_photos))
-      AS photos
-      FROM review_photos
-      WHERE review_photos.review_id = 5)
-    AS photos
-    WHERE reviews.product_id = 2;`
+    `SELECT rvw.*,
+      (SELECT (json_agg(imgs.*)) AS photos
+      FROM review_photos imgs
+      WHERE imgs.review_id = rvw.review_id) AS photos
+    FROM reviews rvw
+    WHERE rvw.product_id = ${data};`
   )
     .then((data) => res.send(data.rows))
     .catch((err) => console.log(err));
