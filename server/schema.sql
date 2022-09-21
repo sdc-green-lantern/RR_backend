@@ -94,8 +94,19 @@ COPY characteristics FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/
 
 COPY characteristics_refs FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
 
--- COPY chars_full(product_id) FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
+--indexes
+CREATE INDEX reviews_product_id_idx ON "reviews"(product_id);
 
+CREATE INDEX chars_full_product_id_idx ON "chars_full"(product_id);
+
+CREATE INDEX review_photos_review_id_idx ON "review_photos"(review_id);
+
+CREATE INDEX characteristics_review_id_idx ON "characteristics"(review_id);
+
+CREATE INDEX characteristics_refs_product_id_idx ON"characteristics_refs"(product_id);
+--
+
+--TRANSFORMATIONS AND INSERTS
 INSERT INTO reviews SELECT
 review_id, product_id, rating,
 to_timestamp(cast(created_at/1000 as bigint))::date,
@@ -105,51 +116,20 @@ FROM reviews_temp;
 
 INSERT INTO chars_full (product_id) SELECT id FROM product;
 
---create a new table with characteristics info
-
---this isnt happy bc foreign key must point to primary key, but review primary key is review_id, not product_id... may need to go back to no foreign key...
-
--- INSERT INTO chars_full SELECT product_id FROM reviews ;
-
--- INSERT INTO chars_full(star1) VALUES((select count(rating) FROM reviews WHERE product_id = chars_full.product_id AND reviews = 1));
-
--- UPDATE chars_full SET product_id = (SELECT product_id FROM reviews where reviews.id = chars_full.id;
-
--- -- ////////////////////
-
 UPDATE chars_full SET star1 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1);
 
---for that product, i want the number of reviews that recommend and the number of reviews that do not recommend
-UPDATE chars_full SET recommend_true = (SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.recommend) RETURNING *;
+UPDATE chars_full SET star2 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 2);
 
---works for finding count of recommend and not for specific product
-SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = 2 AND NOT  reviews.recommend;
+UPDATE chars_full SET star3 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 3);
 
--- -- ////////////////////
+UPDATE chars_full SET star4 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 4);
 
-UPDATE chars_full SET star1 = (SELECT COUNT(ratings) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1)
+UPDATE chars_full SET star5 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 5);
 
-insert into chars_full(star1) VALUES((SELECT COUNT(ratings) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1));
+UPDATE chars_full SET recommend_true = (SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.recommend);
 
--- -- ////////////////////
-
---need to add as many product ids as exist in characteristics_refs to chars_full product ids
-
-
---select ratings from reviews where reviews.product_id = chars_full.product_id;
-
---SELECT COUNT(rating) FROM reviews where product_id=2 and rating = 4;
-
---THIS WORKS FOR ONE PRODUCT ID
-
--- INSERT INTO chars_full(ratings) VALUES ((json_build_object(
---   1, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 1),
---   2, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 2),
---   3, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 3),
---   4, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 4),
---   5, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 5)
--- )));
-
+UPDATE chars_full SET recommend_false = (SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = chars_full.product_id AND NOT reviews.recommend);
+--
 
 --need to make table way bigger for each star and avgs for each characteristic and insert all one by one
 -- simple queries just many of them to insert, where productid = productid
