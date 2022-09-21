@@ -115,23 +115,26 @@ INSERT INTO chars_full (product_id) SELECT id FROM product;
 
 -- UPDATE chars_full SET product_id = (SELECT product_id FROM reviews where reviews.id = chars_full.id;
 
-
+-- -- ////////////////////
 
 UPDATE chars_full SET star1 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1);
 
+--for that product, i want the number of reviews that recommend and the number of reviews that do not recommend
+UPDATE chars_full SET recommend_true = (SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.recommend) RETURNING *;
+
+--works for finding count of recommend and not for specific product
+SELECT COUNT(recommend) FROM reviews WHERE reviews.product_id = 2 AND NOT  reviews.recommend;
+
 -- -- ////////////////////
 
-UPDATE chars_full SET star1 = (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1)
+UPDATE chars_full SET star1 = (SELECT COUNT(ratings) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1)
 
-insert into chars_full(star1) VALUES((SELECT COUNT(*) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1));
+insert into chars_full(star1) VALUES((SELECT COUNT(ratings) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1));
 
+-- -- ////////////////////
 
 --need to add as many product ids as exist in characteristics_refs to chars_full product ids
 
-
--- INSERT INTO chars_full(product_id) VALUES((SELECT * FROM reviews));
-
---want to insert into ratings column of every row (every product) an object {1:x, 2:y, 3:z ,...} which is made from the ratings in the reviews table based off product_id as reference...
 
 --select ratings from reviews where reviews.product_id = chars_full.product_id;
 
