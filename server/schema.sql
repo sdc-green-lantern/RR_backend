@@ -1,11 +1,22 @@
 
 --id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
 
+DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS reviews_temp;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS review_photos;
 DROP TABLE IF EXISTS characteristics;
 DROP TABLE IF EXISTS characteristics_refs;
+DROP TABLE IF EXISTS chars_full;
+
+CREATE TABLE product (
+  id INTEGER,
+  "name" TEXT,
+  slogan TEXT,
+  "description" TEXT,
+  category TEXT,
+  default_price INTEGER
+);
 
 CREATE TABLE reviews_temp (
   review_id SERIAL PRIMARY KEY,
@@ -57,10 +68,23 @@ CREATE TABLE characteristics (
 CREATE TABLE characteristics_refs (
   id SERIAL PRIMARY KEY,
   product_id INTEGER,
-  'name' TEXT
+  "name" TEXT
+);
+
+CREATE TABLE chars_full (
+  product_id INTEGER,
+  star1 INTEGER,
+  star2 INTEGER,
+  star3 INTEGER,
+  star4 INTEGER,
+  star5 INTEGER,
+  recommend_true INTEGER,
+  recommend_false INTEGER
 );
 
 -- psql rrdb < server/schema.sql
+
+COPY product FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/product.csv' DELIMITER ',' CSV HEADER;
 
 COPY reviews_temp FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/reviews.csv' DELIMITER ',' CSV HEADER;
 
@@ -70,6 +94,8 @@ COPY characteristics FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/
 
 COPY characteristics_refs FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
 
+-- COPY chars_full(product_id) FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
+
 INSERT INTO reviews SELECT
 review_id, product_id, rating,
 to_timestamp(cast(created_at/1000 as bigint))::date,
@@ -77,41 +103,33 @@ summary, body, recommend, reported, reviewer_name, reviewer_email, response,
 helpfulness
 FROM reviews_temp;
 
--- ALTER TABLE reviews ADD COLUMN photos jsonb;
-
-
--- INSERT INTO reviews(photos) VALUES((json_agg(review_photos) WHERE review_id IN ( )))
-
--- INSERT INTO reviews(photos) VALUES((SELECT * FROM review_photos WHERE review_photos.review_id = reviews.review_id))
-
---maybe just make a new table and add all these columns to it?
-
--- SELECT reviews.review_id, reviews.product_id, reviews.rating, reviews.created_at, reviews.summary, reviews.body, reviews.recommend, reviews.reported, reviews.reviewer_name, reviews.reviewer_email, reviews.response, reviews.helpfulness, review_photos.review_id, review_photos.url FROM reviews INNER JOIN review_photos ON reviews.review_id = review_photos.review_id;
-
--- (SELECT (json_agg(review_photos))
---   //     AS photos
---   //     FROM review_photos
---   //     WHERE review_photos.review_id = 5)
-
---   select (json_agg(review_photos)) from review_photos where review_photos.review_id = 5;
-
+INSERT INTO chars_full (product_id) SELECT id FROM product;
 
 --create a new table with characteristics info
 
 --this isnt happy bc foreign key must point to primary key, but review primary key is review_id, not product_id... may need to go back to no foreign key...
-CREATE TABLE chars_full (
-  characteristics jsonb DEFAULT NULL,
-  ratings jsonb DEFAULT NULL,
-  product_id INTEGER DEFAULT NULL,
-  recommended jsonb DEFAULT NULL,
-  -- CONSTRAINT fk_chars_full
-    FOREIGN KEY (product_id)
-      REFERENCES reviews(product_id)
-);
+
+-- INSERT INTO chars_full SELECT product_id FROM reviews ;
+
+-- INSERT INTO chars_full(star1) VALUES((select count(rating) FROM reviews WHERE product_id = chars_full.product_id AND reviews = 1));
+
+-- UPDATE chars_full SET product_id = (SELECT product_id FROM reviews where reviews.id = chars_full.id;
 
 
 
-INSERT INTO chars_full(product_id) VALUES((SELECT * FROM reviews));
+UPDATE chars_full SET star1 = (SELECT COUNT(rating) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1);
+
+-- -- ////////////////////
+
+UPDATE chars_full SET star1 = (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1)
+
+insert into chars_full(star1) VALUES((SELECT COUNT(*) FROM reviews WHERE reviews.product_id = chars_full.product_id AND reviews.rating = 1));
+
+
+--need to add as many product ids as exist in characteristics_refs to chars_full product ids
+
+
+-- INSERT INTO chars_full(product_id) VALUES((SELECT * FROM reviews));
 
 --want to insert into ratings column of every row (every product) an object {1:x, 2:y, 3:z ,...} which is made from the ratings in the reviews table based off product_id as reference...
 
@@ -120,10 +138,15 @@ INSERT INTO chars_full(product_id) VALUES((SELECT * FROM reviews));
 --SELECT COUNT(rating) FROM reviews where product_id=2 and rating = 4;
 
 --THIS WORKS FOR ONE PRODUCT ID
-INSERT INTO chars_full(ratings) VALUES ((json_build_object(
-  1, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 1),
-  2, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 2),
-  3, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 3),
-  4, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 4),
-  5, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 5)
-)));
+
+-- INSERT INTO chars_full(ratings) VALUES ((json_build_object(
+--   1, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 1),
+--   2, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 2),
+--   3, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 3),
+--   4, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 4),
+--   5, (SELECT COUNT(rating) FROM reviews WHERE product_id=2 AND rating = 5)
+-- )));
+
+
+--need to make table way bigger for each star and avgs for each characteristic and insert all one by one
+-- simple queries just many of them to insert, where productid = productid
