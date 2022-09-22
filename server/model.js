@@ -17,24 +17,20 @@ module.exports.getAllReviews = (data, res) => {
   //   WHERE reviews.product_id = 2;`
   // )
 
-  db.query(
+  return db.query(
     `SELECT rvw.*,
       (SELECT (json_agg(imgs.*)) AS photos
       FROM review_photos imgs
       WHERE imgs.review_id = rvw.review_id) AS photos
     FROM reviews rvw
     WHERE rvw.product_id = ${data};`
-  )
-    .then((data) => res.send(data.rows))
-    .catch((err) => console.log(err));
+  );
 };
 
 module.exports.getMetaById = (data, res) => {
   console.log("model received meta request for: ", data);
   //data===product_id
-  db.query(`SELECT rating FROM reviews WHERE product_i = ${data}`)
-    .then((data) => res.send(data))
-    .catch((err) => console.log(err.stack));
+  return db.query(`SELECT * FROM meta WHERE product_id = ${data}`);
 };
 
 module.exports.markReviewHelpful = () => {
