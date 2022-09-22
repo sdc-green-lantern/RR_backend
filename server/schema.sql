@@ -1,5 +1,4 @@
-
---id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
+--psql rrdb < server/schema.sql (to run)
 
 DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS reviews_temp;
@@ -88,12 +87,12 @@ CREATE TABLE meta (
   fit_id INTEGER DEFAULT NULL,
   length_id INTEGER DEFAULT NULL,
 
-  comfort_avg INTEGER DEFAULT NULL,
-  quality_avg INTEGER DEFAULT NULL,
-  size_avg INTEGER DEFAULT NULL,
-  width_avg INTEGER DEFAULT NULL,
-  fit_avg INTEGER DEFAULT NULL,
-  length_avg INTEGER DEFAULT NULL
+  comfort_avg NUMERIC DEFAULT NULL,
+  quality_avg NUMERIC DEFAULT NULL,
+  size_avg NUMERIC DEFAULT NULL,
+  width_avg NUMERIC DEFAULT NULL,
+  fit_avg NUMERIC DEFAULT NULL,
+  length_avg NUMERIC DEFAULT NULL
 );
 
 -- psql rrdb < server/schema.sql
@@ -108,7 +107,14 @@ COPY characteristics FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/
 
 COPY characteristics_refs FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
 
+--
+
+INSERT INTO meta (product_id) SELECT id FROM product;
+
+ALTER TABLE characteristics ADD COLUMN product_id INTEGER;
+
 --indexes
+
 CREATE INDEX reviews_product_id_idx ON "reviews"(product_id);
 
 CREATE INDEX reviews_review_id_idx ON "reviews"(review_id);
@@ -124,6 +130,10 @@ CREATE INDEX characteristics_review_id_idx ON "characteristics"(review_id);
 CREATE INDEX characteristics_product_id_idx ON "characteristics"(product_id);
 
 CREATE INDEX characteristics_refs_product_id_idx ON"characteristics_refs"(product_id);
+
+CREATE INDEX characteristics_char_id_idx ON"characteristics" (characteristic_id);
+
+CREATE INDEX characteristics_refs_name_idx ON "characteristics_refs"("name");
 --
 
 --TRANSFORMATIONS AND INSERTS--
@@ -136,11 +146,7 @@ helpfulness
 FROM reviews_temp;
 
 --
-
-INSERT INTO meta (product_id) SELECT id FROM product;
-
-ALTER TABLE characteristics ADD COLUMN product_id INTEGER;
-
+--hella slow, 19.3 million
 UPDATE characteristics SET product_id = (select product_id FROM reviews WHERE reviews.review_id = characteristics.review_id);
 
 --
@@ -163,54 +169,82 @@ UPDATE meta SET recommend_false = (SELECT COUNT(recommend) FROM reviews WHERE re
 
 --
 
--- UPDATE meta SET comfort_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id AND characteristics_refs.name = Comfort LIMIT 1);
+UPDATE meta SET comfort_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Comfort');
 
--- UPDATE meta SET quality_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id AND (select name from characteristics_refs where characteristics_refs.product_id = characteristics.product_id) = "Quality" LIMIT 1);
+UPDATE meta SET quality_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Quality');
 
--- UPDATE meta SET size_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id LIMIT 1);
+UPDATE meta SET size_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Size');
 
--- UPDATE meta SET width_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id LIMIT 1);
+UPDATE meta SET width_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Width');
 
--- UPDATE meta SET fit_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id LIMIT 1);
+UPDATE meta SET fit_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Fit');
 
--- UPDATE meta SET length_id = (SELECT characteristics.characteristic_id from characteristics where meta.product_id = characteristics.product_id LIMIT 1);
+UPDATE meta SET length_id = (SELECT id FROM characteristics_refs WHERE characteristics_refs.product_id = meta.product_id AND characteristics_refs.name = 'Length');
 
 --
 
---want to isnert into each meta (product id)
---list of characteristics associated with that product
---list of characteristic id's associated with the chars
---average values for those charactersitics
+UPDATE meta SET comfort_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT comfort_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
 
---need to make table way bigger for each star and avgs for each characteristic and insert all one by one
+UPDATE meta SET quality_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT quality_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
 
+UPDATE meta SET size_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT size_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
 
+UPDATE meta SET width_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT width_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
+
+UPDATE meta SET fit_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT fit_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
+
+UPDATE meta SET length_avg = (
+  SELECT AVG(characteristics.val)::NUMERIC(10,2)
+  FROM characteristics
+  WHERE meta.product_id = characteristics.product_id
+  AND characteristics.characteristic_id = (
+    SELECT length_id
+    FROM meta
+    WHERE meta.product_id = characteristics.product_id
+    LIMIT 1));
 
 ---- TESTING ----
-
---review metadata for a given product
-
---maybe insert char id into respective column for each product, if nothing null
---for avg values of that data we can store it also in that column OR  do it later as a query?
-
--- SELECT characteristics_refs.name from characteristics_refs where product_id = 2;
-
--- --for every product in metas, we want to add ids to each comfort column
-
--- UPDATE meta SET comfort_id = (select characteristics.characteristic_id from characteristics where meta.product_id = (select product_id from reviews where reviews.review_id = characteristics.review_id));
-
--- select product_id from reviews where review_id = 5
-
--- select characteristics.characteristic_id from characteristics where meta.product_id = 5;
+--characteristics.characteristic_id = characteristics_refs.id
 
 
--- insert into meta(comfort_id) values ((select characteristics.characteristic_id from characteristics, meta where meta.product_id = (SELECT reviews.product_id from reviews where reviews.review_id = characteristics.review_id)));
-
---since there are many reviews to one product id, this is returning multiple ids to set comfort_id (1, 1) instead of 1
-
---get all val from characteristics where product id = x and characteristic id = y
-
---this get avg for characteristic
--- SELECT AVG(val) FROM characteristics WHERE product_id = 1 AND characteristic_id = 1;
-
--- SELECT AVG(val) FROM characteristics WHERE product_id = () AND characteristic_id = () AND () = "Quality";
+--
