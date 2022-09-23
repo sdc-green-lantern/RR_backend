@@ -14,10 +14,74 @@ module.exports.getAllReviews = (productID) => {
   );
 };
 
-module.exports.postNewReview = (reqBody) => {
+module.exports.postNewReview = (
+  product_id,
+  rating,
+  // created_at,
+  summary,
+  body,
+  recommend,
+  name,
+  email
+) => {
   console.log("post req at model");
 
-  // return db.query(``);
+  // to_timestamp(cast(created_at/1000 as bigint))::date,
+  //
+  //date no work "syntax error at or near Sep"
+  //
+  // ${product_id}, ${rating}, ${created_at}::date, ${summary}, ${body}, ${recommend}, ${false}, ${name}, ${email}, ${0})
+
+  return db.query(`
+  INSERT INTO reviews (
+    product_id, rating, summary, body, recommend, reported, reviewer_name, reviewer_email, helpfulness)
+  VALUES (
+    ${product_id}, ${rating}, ${summary}, ${body}, ${recommend}, ${false}, ${name}, ${email}, ${0})
+  RETURNING review_id;
+  `);
+};
+
+module.exports.postReviewPhotos = (reviewID, url) => {
+  console.log("post photos", reviewID);
+  db.query(`
+    INSERT INTO review_photos (review_id, url) VALUES (${reviewID}, ${url})
+  `);
+};
+
+module.exports.postCharacteristics = (
+  charID,
+  reviewID,
+  charVal,
+  product_id
+) => {
+  console.log("post chars", product_id);
+  db.query(`
+    INSERT INTO characteristics (
+      characteristic_id, review_id, val, product_id)
+    VALUES (${charID}, ${reviewID}, ${charVal}, ${product_id})
+  `);
+};
+
+module.exports.updateMeta = (reviewID, rating, recommended) => {
+  //we will want to update star count, recommended counts, and char avgs
+  console.log("updateMETA");
+
+  db.query(`
+    BEGIN;
+
+    UPDATE TABLE meta SET star${rating} = meta.star${rating} + 1;
+
+    CASE
+      WHEN recommended = 'true'
+      THEN
+      UPDATE meta SET meta.recommend_true = meta.recommend_true + 1;
+      WHEN recommended = 'false
+      THEN
+      UPDATE meta SET meta.recommend_false = meta.recommend_false + 1;
+    END;
+
+    COMMIT;
+  `);
 };
 
 module.exports.getMetaById = (productID) => {
