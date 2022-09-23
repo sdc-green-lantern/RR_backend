@@ -243,11 +243,7 @@ UPDATE meta SET length_avg = (
     WHERE meta.product_id = characteristics.product_id
     LIMIT 1));
 
----- TESTING ----
---characteristics.characteristic_id = characteristics_refs.id
-
-
---
+-- resetting position of primary keys for posting
 
 SELECT setval('reviews_review_id_seq', (SELECT MAX(review_id) FROM reviews));
 

@@ -49,7 +49,27 @@ module.exports.postNewReview = (body, date) => {
       0,
     ],
   };
+
   return db.query(query);
+};
+
+module.exports.updateMetaStarRec = (
+  productID,
+  reviewID,
+  rating,
+  recommended
+) => {
+  //star
+  db.query(`UPDATE meta SET star${rating} = star${rating} + 1;`).then(() =>
+    //recommendations
+    recommended === true
+      ? db.query(
+          `UPDATE meta SET recommend_true = recommend_true + 1 WHERE product_id = ${productID};`
+        )
+      : db.query(
+          `UPDATE meta SET recommend_false = recommend_true + 1 WHERE product_id = ${productID};`
+        )
+  );
 };
 
 module.exports.postReviewPhotos = (reviewID, url) => {
@@ -59,9 +79,6 @@ module.exports.postReviewPhotos = (reviewID, url) => {
     values: [Number(reviewID), url.toString()],
   };
   db.query(query);
-  // return db.query(`
-  //   INSERT INTO review_photos (review_id, url) VALUES (${reviewID}::INTEGER, ${url}::TEXT);
-  // `);
 };
 
 // module.exports.postCharacteristics = (
@@ -73,21 +90,9 @@ module.exports.postReviewPhotos = (reviewID, url) => {
 //   console.log("post chars", product_id);
 // };
 
-module.exports.updateMeta = (product_id, reviewID, rating, recommended) => {
+module.exports.updateMeta = (product_id, reviewID, charID, charVal) => {
   //we will want to update star count, recommended counts, and char avgs
-  console.log("updateMETA", product_id, Number(reviewID), rating, recommended);
-
-  //star
-  db.query(`UPDATE meta SET star${rating} = star${rating} + 1;`);
-
-  //recommendations
-  recommended === true
-    ? db.query(
-        `UPDATE meta SET recommend_true = recommend_true + 1 WHERE product_id = ${product_id};`
-      )
-    : db.query(
-        `UPDATE meta SET recommend_false = recommend_true + 1 WHERE product_id = ${product_id};`
-      );
+  console.log("updateMETA");
 
   //meta update
 

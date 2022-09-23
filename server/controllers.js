@@ -53,6 +53,17 @@ module.exports.postNewReview = (req, res) => {
 
   model
     .postNewReview(req.body, created_at)
+
+    .then((reviewID) => {
+      model.updateMetaStarRec(
+        req.body.product_id,
+        reviewID.rows[0].review_id,
+        Number(req.body.rating),
+        rec
+      );
+      return reviewID;
+    })
+
     .then((reviewID) => {
       console.log("made it to photos");
       if (usrPhotos.length && usrPhotos.length > 0) {
@@ -71,12 +82,16 @@ module.exports.postNewReview = (req, res) => {
     // })
     .then((reviewID) => {
       console.log("made it to meta");
-      model.updateMeta(
-        req.body.product_id,
-        reviewID.rows[0].review_id,
-        Number(req.body.rating),
-        rec
-      );
+
+      for (let [charID, charVal] of Object.entries(chars)) {
+        console.log("meta controller", charID, charVal);
+        model.updateMeta(
+          req.body.product_id,
+          reviewID.rows[0].review_id,
+          charID,
+          charVal
+        );
+      }
     })
     //i think we can use reviewID to do the updates...
     //we will want to update star count, recommended counts, and char avgs
