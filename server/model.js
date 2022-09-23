@@ -1,21 +1,8 @@
 // import db from "./db.js";
 const db = require("./db.js");
 
-module.exports.getAllReviews = (data, res) => {
+module.exports.getAllReviews = (productID) => {
   console.log("model received request for reviews");
-  // db.query(
-  //   `SELECT (json_agg(review_photos)) FROM review_photos WHERE review_photos.review_id = 5;`
-  // ).then((data) => res.send(data.rows[0].json_agg));
-
-  // db.query(
-  //   `SELECT * FROM reviews,
-  //     (SELECT (json_agg(review_photos))
-  //     AS photos
-  //     FROM review_photos
-  //     WHERE review_photos.review_id = 5)
-  //   AS photos
-  //   WHERE reviews.product_id = 2;`
-  // )
 
   return db.query(
     `SELECT rvw.*,
@@ -23,22 +10,36 @@ module.exports.getAllReviews = (data, res) => {
       FROM review_photos imgs
       WHERE imgs.review_id = rvw.review_id) AS photos
     FROM reviews rvw
-    WHERE rvw.product_id = ${data};`
+    WHERE rvw.product_id = ${productID};`
   );
 };
 
-module.exports.getMetaById = (data, res) => {
-  console.log("model received meta request for: ", data);
-  //data===product_id
-  return db.query(`SELECT * FROM meta WHERE product_id = ${data}`);
+module.exports.getMetaById = (productID) => {
+  console.log("model received meta request for: ", productID);
+  //data = product_id
+  return db.query(`SELECT * FROM meta WHERE product_id = ${productID}`);
 };
 
-module.exports.markReviewHelpful = () => {
+module.exports.markReviewHelpful = (reviewID) => {
   console.log("model to mark as helpful");
+  //data = review_id
+  //reviews.helpfulness
+  return db.query(`
+    UPDATE reviews
+    SET helpfulness = helpfulness::INTEGER + 1
+    WHERE reviews.review_id = ${reviewID}
+  `);
 };
 
-module.exports.reportReview = () => {
+module.exports.reportReview = (reviewID) => {
   console.log("model to report review");
+  //data = review_id
+  //reviews.reported (bool)
+  return db.query(`
+  UPDATE reviews
+  SET reported = TRUE
+  WHERE reviews.review_id = ${reviewID}
+  `);
 };
 
 //getReviewsByCount   -> params: {product_id, sort, count}

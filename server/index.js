@@ -12,6 +12,19 @@ app.use(express.json());
 // app.use("/reviews", router);
 
 ///////////////////  ROUTES  ///////////////////////////
+//PUT /reviews/:review_id/report
+//204
+app.put("/reviews/:review_id/report", (req, res) => {
+  console.log("request for report");
+  controller.reportReview(req, res);
+});
+
+//PUT /reviews/:review_id/helpful
+//204
+app.put("/reviews/:review_id/helpful", (req, res) => {
+  console.log("request for helpful");
+  controller.markReviewHelpful(req, res);
+});
 
 app.get("/reviews/meta", (req, res) => {
   console.log("request for metadata");
@@ -28,12 +41,6 @@ app.get("/reviews", (req, res) => {
 
 //POST /reviews
 //201
-
-//PUT /reviews/:review_id/helpful
-//204
-
-//PUT /reviews/:review_id/report
-//204
 
 ////////////////////////////////////////////////////////
 

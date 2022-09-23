@@ -4,7 +4,7 @@ module.exports.getReviewsById = (req, res) => {
   console.log("request recieved by controller");
   let reqData = req.query.product_id;
   model
-    .getAllReviews(reqData, res)
+    .getAllReviews(reqData)
     .then((data) => res.send(data.rows))
     .catch((err) => console.log(err));
 };
@@ -15,7 +15,7 @@ module.exports.getMeta = (req, res) => {
   let data = {};
 
   model
-    .getMetaById(reqData, res)
+    .getMetaById(reqData)
     .then((response) => {
       let result = response.rows[0];
 
@@ -68,6 +68,30 @@ module.exports.getMeta = (req, res) => {
 
       // res.send(response.rows);
       res.send(data);
+    })
+    .catch((err) => console.log(err));
+};
+
+module.exports.reportReview = (req, res) => {
+  console.log("report, controller");
+  let queryData = req.query.review_id;
+  model
+    .reportReview(queryData)
+    .then((data) => {
+      console.log("done", data);
+      res.sendStatus(204);
+    })
+    .catch((err) => console.log(err));
+};
+
+module.exports.markReviewHelpful = (req, res) => {
+  console.log("helpful, controller");
+  let queryData = req.query.review_id;
+  model
+    .markReviewHelpful(queryData)
+    .then((data) => {
+      console.log("done", data);
+      res.sendStatus(204);
     })
     .catch((err) => console.log(err));
 };
