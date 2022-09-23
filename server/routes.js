@@ -3,6 +3,10 @@ const router = express.Router();
 const model = require("./model.js");
 const controller = require("./controllers.js");
 
+/////////////////////////////////////
+//       THIS WAS SCRAPPED
+/////////////////////////////////////
+
 // router.get("/reviews", controller.getAll);
 
 module.exports = router;

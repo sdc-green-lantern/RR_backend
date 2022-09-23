@@ -3,6 +3,10 @@ require("dotenv").config();
 var pgp = require("pgp");
 const { Pool, Client } = require("pg");
 
+/////////////////////////////////////
+//       THIS WAS SCRAPPED
+/////////////////////////////////////
+
 const etl = new Pool({
   host: "localhost",
   database: "rrdb",

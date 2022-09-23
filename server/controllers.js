@@ -1,7 +1,7 @@
 const model = require("./model.js");
 
 module.exports.getReviewsById = (req, res) => {
-  console.log("request recieved by controller");
+  // console.log("request recieved by controller");
   let reqData = req.query.product_id;
   model
     .getAllReviews(reqData)
@@ -10,46 +10,14 @@ module.exports.getReviewsById = (req, res) => {
 };
 
 module.exports.postNewReview = (req, res) => {
-  console.log("post at controller");
-  console.log(req.body);
+  // console.log("post at controller");
+  // console.log(req.body);
 
-  // let product_id = Number(req.body.product_id);
-  // let star = Number(req.body.rating);
-  // this date may not match other database entries, we'll see
   let created_at = new Date();
-  // let title = req.body.summary;
-  // let text = req.body.body;
   let rec = req.body.recommend === "true" ? true : false;
-  // let usrName = req.body.name;
-  // let usrEmail = req.body.email;
-  // //will need to do more with this if i want it working properly i think
   let usrPhotos = JSON.parse(req.body.photos);
   let chars = JSON.parse(req.body.characteristics);
   let usrChars = req.body.characteristics;
-
-  console.log(chars);
-  console.log(usrPhotos);
-
-  // console.log(
-  //   product_id,
-  //   star,
-  //   // created_at,
-  //   title,
-  //   text,
-  //   rec,
-  //   usrName,
-  //   usrEmail,
-  //   usrPhotos,
-  //   usrChars
-  // );
-  //for product id want to add new review with
-  //prodID int, rating int, reatedAT date, summary str, body str, recommend bool, reportef as false (bool), name as str, email as str, helpfuness int (0)....
-
-  //for photos
-  //want to add review id with 1 url for each url (3 images = 3 entries)
-
-  //for characteristics
-  //want to add characteristic id and value along with the product id and review id (somehow)
 
   model
     .postNewReview(req.body, created_at)
@@ -65,7 +33,7 @@ module.exports.postNewReview = (req, res) => {
     })
 
     .then((reviewID) => {
-      console.log("made it to photos");
+      // console.log("made it to photos");
       if (usrPhotos.length && usrPhotos.length > 0) {
         usrPhotos.forEach((url) =>
           model.postReviewPhotos(reviewID.rows[0].review_id, url)
@@ -74,34 +42,24 @@ module.exports.postNewReview = (req, res) => {
       return reviewID;
     })
     // .then((reviewID) => {
-    //   //for each key in characteristics we want to post into characteristics the key/val
-    //   for (let [charID, charVal] of Object.entries(characteristics)) {
-    //     model.postCharacteristics(charID, reviewID, charVal, product_id);
+    // console.log("made it to meta");
+
+    //   for (let [charID, charVal] of Object.entries(chars)) {
+    //     console.log("meta controller", charID, charVal);
+    //     model.updateMeta(
+    //       req.body.product_id,
+    //       reviewID.rows[0].review_id,
+    //       charID,
+    //       charVal
+    //     );
     //   }
-    //   // return reviewID;
     // })
-    .then((reviewID) => {
-      console.log("made it to meta");
-
-      for (let [charID, charVal] of Object.entries(chars)) {
-        console.log("meta controller", charID, charVal);
-        model.updateMeta(
-          req.body.product_id,
-          reviewID.rows[0].review_id,
-          charID,
-          charVal
-        );
-      }
-    })
-    //i think we can use reviewID to do the updates...
-    //we will want to update star count, recommended counts, and char avgs
     .then(() => res.sendStatus(201))
-
     .catch((err) => console.log(err));
 };
 
 module.exports.getMeta = (req, res) => {
-  console.log("request for meta received by controller");
+  // console.log("request for meta received by controller");
   let reqData = req.query.product_id;
   let data = {};
 
@@ -164,24 +122,24 @@ module.exports.getMeta = (req, res) => {
 };
 
 module.exports.reportReview = (req, res) => {
-  console.log("report, controller");
+  // console.log("report, controller");
   let queryData = req.query.review_id;
   model
     .reportReview(queryData)
     .then((data) => {
-      console.log("done", data);
+      // console.log("done", data);
       res.sendStatus(204);
     })
     .catch((err) => console.log(err));
 };
 
 module.exports.markReviewHelpful = (req, res) => {
-  console.log("helpful, controller");
+  // console.log("helpful, controller");
   let queryData = req.query.review_id;
   model
     .markReviewHelpful(queryData)
     .then((data) => {
-      console.log("done", data);
+      // console.log("done", data);
       res.sendStatus(204);
     })
     .catch((err) => console.log(err));
