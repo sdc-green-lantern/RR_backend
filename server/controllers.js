@@ -13,32 +13,35 @@ module.exports.postNewReview = (req, res) => {
   console.log("post at controller");
   console.log(req.body);
 
-  let product_id = Number(req.body.product_id);
-  let rating = Number(req.body.rating);
-  //this date may not match other database entries, we'll see
-  // let created_at = new Date();
-  let summary = req.body.summary;
-  let body = req.body.body;
-  let recommend = req.body.recommend === "true" ? true : false;
-  let name = req.body.name;
-  let email = req.body.email;
-  //will need to do more with this if i want it working properly i think
-  let photos = req.body.photos;
-  // let characteristics = JSON.parse(req.body.characteristics);
-  let characteristics = req.body.characteristics;
+  // let product_id = Number(req.body.product_id);
+  // let star = Number(req.body.rating);
+  // this date may not match other database entries, we'll see
+  let created_at = new Date();
+  // let title = req.body.summary;
+  // let text = req.body.body;
+  let rec = req.body.recommend === "true" ? true : false;
+  // let usrName = req.body.name;
+  // let usrEmail = req.body.email;
+  // //will need to do more with this if i want it working properly i think
+  let usrPhotos = JSON.parse(req.body.photos);
+  let chars = JSON.parse(req.body.characteristics);
+  let usrChars = req.body.characteristics;
 
-  console.log(
-    product_id,
-    rating,
-    // created_at,
-    summary,
-    body,
-    recommend,
-    name,
-    email,
-    photos,
-    characteristics
-  );
+  console.log(chars);
+  console.log(usrPhotos);
+
+  // console.log(
+  //   product_id,
+  //   star,
+  //   // created_at,
+  //   title,
+  //   text,
+  //   rec,
+  //   usrName,
+  //   usrEmail,
+  //   usrPhotos,
+  //   usrChars
+  // );
   //for product id want to add new review with
   //prodID int, rating int, reatedAT date, summary str, body str, recommend bool, reportef as false (bool), name as str, email as str, helpfuness int (0)....
 
@@ -49,30 +52,32 @@ module.exports.postNewReview = (req, res) => {
   //want to add characteristic id and value along with the product id and review id (somehow)
 
   model
-    .postNewReview(
-      product_id,
-      rating,
-      // created_at,
-      summary,
-      body,
-      recommend,
-      name,
-      email
-    )
+    .postNewReview(req.body, created_at)
     .then((reviewID) => {
-      if (photos.length) {
-        photos.forEach((url) => model.postReviewPhotos(reviewID, url));
+      console.log("made it to photos");
+      if (usrPhotos.length && usrPhotos.length > 0) {
+        usrPhotos.forEach((url) =>
+          model.postReviewPhotos(reviewID.rows[0].review_id, url)
+        );
       }
       return reviewID;
     })
+    // .then((reviewID) => {
+    //   //for each key in characteristics we want to post into characteristics the key/val
+    //   for (let [charID, charVal] of Object.entries(characteristics)) {
+    //     model.postCharacteristics(charID, reviewID, charVal, product_id);
+    //   }
+    //   // return reviewID;
+    // })
     .then((reviewID) => {
-      //for each key in characteristics we want to post into characteristics the key/val
-      for (let [charID, charVal] of Object.entries(characteristics)) {
-        model.postCharacteristics(charID, reviewID, charVal, product_id);
-      }
-      // return reviewID;
+      console.log("made it to meta");
+      model.updateMeta(
+        req.body.product_id,
+        reviewID.rows[0].review_id,
+        Number(req.body.rating),
+        rec
+      );
     })
-    .then((reviewID) => model.updateMeta(reviewID, rating, recommended))
     //i think we can use reviewID to do the updates...
     //we will want to update star count, recommended counts, and char avgs
     .then(() => res.sendStatus(201))

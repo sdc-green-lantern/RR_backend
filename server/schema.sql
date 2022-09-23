@@ -248,3 +248,7 @@ UPDATE meta SET length_avg = (
 
 
 --
+
+SELECT setval('reviews_review_id_seq', (SELECT MAX(review_id) FROM reviews));
+
+SELECT setval('review_photos_id_seq', (SELECT MAX(id) FROM review_photos));

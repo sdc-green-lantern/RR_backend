@@ -14,75 +14,107 @@ module.exports.getAllReviews = (productID) => {
   );
 };
 
-module.exports.postNewReview = (
-  product_id,
-  rating,
-  // created_at,
-  summary,
-  body,
-  recommend,
-  name,
-  email
-) => {
+module.exports.postNewReview = (body, date) => {
   console.log("post req at model");
-
-  // to_timestamp(cast(created_at/1000 as bigint))::date,
-  //
-  //date no work "syntax error at or near Sep"
-  //
   // ${product_id}, ${rating}, ${created_at}::date, ${summary}, ${body}, ${recommend}, ${false}, ${name}, ${email}, ${0})
+  //   db.query(`
+  //   INSERT INTO characteristics (
+  //     characteristic_id, review_id, val, product_id)
+  //   VALUES (${charID}, ${reviewID}, ${charVal}, ${product_id})
+  // `);
 
-  return db.query(`
-  INSERT INTO reviews (
-    product_id, rating, summary, body, recommend, reported, reviewer_name, reviewer_email, helpfulness)
-  VALUES (
-    ${product_id}, ${rating}, ${summary}, ${body}, ${recommend}, ${false}, ${name}, ${email}, ${0})
-  RETURNING review_id;
-  `);
+  // return db.query(`
+  // INSERT INTO reviews (
+  //   product_id, rating, summary, body, recommend, reported, reviewer_name, reviewer_email, helpfulness)
+  // VALUES (
+  //   ${body.product_id}, ${body.rating}, ${body.summary}, ${body.body}, ${
+  //   body.recommend
+  // }, ${false}, ${body.name}, ${body.email}, ${0})
+  // RETURNING review_id;
+  // `);
+  let query = {
+    text: `INSERT INTO reviews (
+      product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING review_id;`,
+
+    values: [
+      body.product_id,
+      body.rating,
+      date,
+      body.summary,
+      body.body,
+      body.recommend,
+      false,
+      body.name,
+      body.email,
+      0,
+    ],
+  };
+  return db.query(query);
 };
 
 module.exports.postReviewPhotos = (reviewID, url) => {
-  console.log("post photos", reviewID);
-  db.query(`
-    INSERT INTO review_photos (review_id, url) VALUES (${reviewID}, ${url})
-  `);
+  console.log("post photos", reviewID, url);
+  let query = {
+    text: "INSERT INTO review_photos (review_id, url) VALUES ($1, $2);",
+    values: [Number(reviewID), url.toString()],
+  };
+  db.query(query);
+  // return db.query(`
+  //   INSERT INTO review_photos (review_id, url) VALUES (${reviewID}::INTEGER, ${url}::TEXT);
+  // `);
 };
 
-module.exports.postCharacteristics = (
-  charID,
-  reviewID,
-  charVal,
-  product_id
-) => {
-  console.log("post chars", product_id);
-  db.query(`
-    INSERT INTO characteristics (
-      characteristic_id, review_id, val, product_id)
-    VALUES (${charID}, ${reviewID}, ${charVal}, ${product_id})
-  `);
-};
+// module.exports.postCharacteristics = (
+//   charID,
+//   reviewID,
+//   charVal,
+//   product_id
+// ) => {
+//   console.log("post chars", product_id);
+// };
 
-module.exports.updateMeta = (reviewID, rating, recommended) => {
+module.exports.updateMeta = (product_id, reviewID, rating, recommended) => {
   //we will want to update star count, recommended counts, and char avgs
-  console.log("updateMETA");
+  console.log("updateMETA", product_id, Number(reviewID), rating, recommended);
 
-  db.query(`
-    BEGIN;
+  //star
+  db.query(`UPDATE meta SET star${rating} = star${rating} + 1;`);
 
-    UPDATE TABLE meta SET star${rating} = meta.star${rating} + 1;
+  //recommendations
+  recommended === true
+    ? db.query(
+        `UPDATE meta SET recommend_true = recommend_true + 1 WHERE product_id = ${product_id};`
+      )
+    : db.query(
+        `UPDATE meta SET recommend_false = recommend_true + 1 WHERE product_id = ${product_id};`
+      );
 
-    CASE
-      WHEN recommended = 'true'
-      THEN
-      UPDATE meta SET meta.recommend_true = meta.recommend_true + 1;
-      WHEN recommended = 'false
-      THEN
-      UPDATE meta SET meta.recommend_false = meta.recommend_false + 1;
-    END;
+  //meta update
 
-    COMMIT;
-  `);
+  //gunna need total for that character_id, add VAL to it, devide that total by the amount + 1 (and maybe set that as new val for future)
+  //db.query(`UPDATE meta SET (SELECT ) WHERE product_id = ${product_id}`)
+
+  // db.query(`
+  //   BEGIN;
+  //   UPDATE meta SET meta.star${rating} = meta.star${rating} + 1;
+  //   CASE
+  //     WHEN ${recommended} = 'true'
+  //       THEN
+  //       UPDATE meta SET meta.recommend_true = meta.recommend_true + 1
+  //       WHERE product_id = ${product_id};
+  //     WHEN ${recommended} = 'false'
+  //       THEN
+  //       UPDATE meta SET meta.recommend_false = meta.recommend_false + 1
+  //       WHERE product_id = ${product_id};
+  //   END;
+  //   COMMIT;
+  // `);
 };
+
+//
+// UPDATE meta SET (SELECT ) WHERE product_id = ${product_id}
+
+//
 
 module.exports.getMetaById = (productID) => {
   console.log("model received meta request for: ", productID);
