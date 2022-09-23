@@ -14,6 +14,12 @@ module.exports.getAllReviews = (productID) => {
   );
 };
 
+module.exports.postNewReview = (reqBody) => {
+  console.log("post req at model");
+
+  // return db.query(``);
+};
+
 module.exports.getMetaById = (productID) => {
   console.log("model received meta request for: ", productID);
   //data = product_id

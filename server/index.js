@@ -34,13 +34,17 @@ app.get("/reviews/meta", (req, res) => {
 //page, count, sort, product_id
 app.get("/reviews", (req, res) => {
   console.log("request for reviews");
-  console.log(req.query.product_id);
 
   controller.getReviewsById(req, res);
 });
 
 //POST /reviews
 //201
+app.post("/reviews", (req, res) => {
+  console.log("req review POST");
+
+  controller.postNewReview(req, res);
+});
 
 ////////////////////////////////////////////////////////
 

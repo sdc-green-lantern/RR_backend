@@ -9,6 +9,17 @@ module.exports.getReviewsById = (req, res) => {
     .catch((err) => console.log(err));
 };
 
+module.exports.postNewReview = (req, res) => {
+  console.log("post at controller");
+  console.log(req.body);
+
+  // req will be in the body this time, not query
+  model
+    .postNewReview(/*potentially multiple args for multiple queries*/)
+    .then((data) => res.sendStatus(201))
+    .catch((err) => console.log(err));
+};
+
 module.exports.getMeta = (req, res) => {
   console.log("request for meta received by controller");
   let reqData = req.query.product_id;
