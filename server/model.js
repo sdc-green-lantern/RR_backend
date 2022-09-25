@@ -2,7 +2,7 @@
 const db = require("./db.js");
 
 module.exports.getAllReviews = (productID) => {
-  // console.log("model received request for reviews");
+  console.log("model received request for reviews");
 
   return db.query(
     `SELECT rvw.*,

@@ -47,8 +47,8 @@ app.post("/reviews", (req, res) => {
 });
 
 ////////////////////////////////////////////////////////
-
-app.listen(process.env.PORT || 3000);
-console.log(`Listening at http://localhost:${process.env.PORT}`);
+let PORT = process.env.PORT || 3000;
+app.listen(PORT);
+console.log(`Listening at http://localhost:${PORT}`);
 
 /// TO DO AND THOUGHTS //

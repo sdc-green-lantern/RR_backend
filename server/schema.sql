@@ -97,15 +97,15 @@ CREATE TABLE meta (
 
 -- psql rrdb < server/schema.sql
 
-COPY product FROM 'csv_files/product.csv' DELIMITER ',' CSV HEADER;
+COPY product FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/product.csv' DELIMITER ',' CSV HEADER;
 
-COPY reviews_temp FROM 'csv_files/reviews.csv' DELIMITER ',' CSV HEADER;
+COPY reviews_temp FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/reviews.csv' DELIMITER ',' CSV HEADER;
 
-COPY review_photos FROM 'csv_files/reviews_photos.csv' DELIMITER ',' CSV HEADER;
+COPY review_photos FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/reviews_photos.csv' DELIMITER ',' CSV HEADER;
 
-COPY characteristics FROM 'csv_files/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
+COPY characteristics FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
 
-COPY characteristics_refs FROM 'csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
+COPY characteristics_refs FROM '/Users/mattwaelder/hackreactor/rfp2207-sdc/csv_files/characteristics.csv' DELIMITER ',' CSV HEADER;
 
 --
 
